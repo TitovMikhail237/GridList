@@ -1,16 +1,19 @@
 package com.example.gridlist;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.gridlist.Model.Note;
 import com.example.gridlist.UI.AdapterNotes;
@@ -19,20 +22,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ListNotes extends Fragment {
+public class ListNotes extends Fragment implements OnItemClickListener {
 
     private RecyclerView recyclerView;
     private AdapterNotes adapterNotes;
+    private Navigation navigation;
+
 
     public static ListNotes newInstance() {
         return new ListNotes();
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if(context instanceof Navigation){
+            navigation = (Navigation) context;
+        }
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_list_notes, container, false);
+
+
     }
 
     @Override
@@ -42,9 +57,37 @@ public class ListNotes extends Fragment {
         recyclerView = view.findViewById(R.id.list_notes);
 
         List<Note> notes = getListNotes();
-        AdapterNotes adapterNotes = new AdapterNotes(notes);
+        AdapterNotes adapterNotes = new AdapterNotes(notes, this);
         recyclerView.setAdapter(adapterNotes);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(),2));
+
+
+        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+
+
+
+
+        Button buttonGrid = view.findViewById(R.id.buttonGrid);
+        buttonGrid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                recyclerView.setLayoutManager(new GridLayoutManager(requireContext(),2));
+            }
+        });
+        Button buttonVertical = view.findViewById(R.id.buttonVertical);
+        buttonVertical.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL,false));
+            }
+        });
+        Button buttonGorizontal = view.findViewById(R.id.buttonGorizontal);
+        buttonGorizontal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+            }
+        });
+
 
     }
 
@@ -70,5 +113,10 @@ public class ListNotes extends Fragment {
         notes.add(new Note(16, "Donald Cerrone", "Kickboxing"));
 
         return notes;
+    }
+
+    @Override
+    public void openNote(Note note) {
+        navigation.replaceCurrentNote(note);
     }
 }
